@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Link, router } from "expo-router";
+import { Eye, EyeOff } from "lucide-react-native";
 import { useDispatch } from "react-redux";
 import { useSignupMutation } from "@/store/api/authApi";
 import { setCredentials } from "@/store/authSlice";
@@ -27,6 +28,7 @@ export default function SignupScreen() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSignup = async () => {
     if (!username.trim() || !email.trim() || !password.trim()) {
@@ -34,8 +36,12 @@ export default function SignupScreen() {
       return;
     }
 
-    if (password.length < 6) {
-      Alert.alert("Error", "Password must be at least 6 characters");
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      Alert.alert(
+        "Weak Password",
+        "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character."
+      );
       return;
     }
 
@@ -100,14 +106,27 @@ export default function SignupScreen() {
             />
 
             <Text className="text-sm font-medium text-gray-700 mb-1">Password</Text>
-            <TextInput
-              className="border border-gray-300 rounded-xl px-4 py-3.5 mb-6 text-gray-900 bg-gray-50"
-              placeholder="At least 6 characters"
-              placeholderTextColor="#9ca3af"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-            />
+            <View className="relative mb-6">
+              <TextInput
+                className="border border-gray-300 rounded-xl px-4 py-3.5 text-gray-900 bg-gray-50 pr-12"
+                placeholder="Min 8 chars, 1 uppercase, 1 special"
+                placeholderTextColor="#9ca3af"
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-4"
+                activeOpacity={0.7}
+              >
+                {showPassword ? (
+                  <EyeOff size={20} color="#9ca3af" />
+                ) : (
+                  <Eye size={20} color="#9ca3af" />
+                )}
+              </TouchableOpacity>
+            </View>
 
             <TouchableOpacity
               onPress={handleSignup}

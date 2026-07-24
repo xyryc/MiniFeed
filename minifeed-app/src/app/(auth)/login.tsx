@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Link, router } from "expo-router";
+import { Eye, EyeOff } from "lucide-react-native";
 import { useDispatch } from "react-redux";
 import { useLoginMutation } from "@/store/api/authApi";
 import { setCredentials } from "@/store/authSlice";
@@ -26,6 +27,7 @@ export default function LoginScreen() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -80,14 +82,27 @@ export default function LoginScreen() {
             />
 
             <Text className="text-sm font-medium text-gray-700 mb-1">Password</Text>
-            <TextInput
-              className="border border-gray-300 rounded-xl px-4 py-3.5 mb-6 text-gray-900 bg-gray-50"
-              placeholder="Enter your password"
-              placeholderTextColor="#9ca3af"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-            />
+            <View className="relative mb-6">
+              <TextInput
+                className="border border-gray-300 rounded-xl px-4 py-3.5 text-gray-900 bg-gray-50 pr-12"
+                placeholder="Enter your password"
+                placeholderTextColor="#9ca3af"
+                secureTextEntry={!showPassword}
+                value={password}
+                onChangeText={setPassword}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-4"
+                activeOpacity={0.7}
+              >
+                {showPassword ? (
+                  <EyeOff size={20} color="#9ca3af" />
+                ) : (
+                  <Eye size={20} color="#9ca3af" />
+                )}
+              </TouchableOpacity>
+            </View>
 
             <TouchableOpacity
               onPress={handleLogin}
