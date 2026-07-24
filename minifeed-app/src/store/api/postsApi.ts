@@ -12,6 +12,9 @@ export interface Like {
 
 export interface Comment {
   id: number;
+  content: string;
+  author: Author;
+  createdAt: string;
 }
 
 export interface Post {
@@ -56,6 +59,20 @@ export interface LikeResponse {
   likeCount: number;
 }
 
+export interface AddCommentRequest {
+  postId: number;
+  content: string;
+}
+
+export interface AddCommentResponse {
+  message: string;
+  comment: Comment;
+}
+
+export interface GetCommentsResponse {
+  comments: Comment[];
+}
+
 export const postsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getPosts: builder.query<GetPostsResponse, GetPostsRequest>({
@@ -78,6 +95,18 @@ export const postsApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Posts"],
     }),
+    addComment: builder.mutation<AddCommentResponse, AddCommentRequest>({
+      query: ({ postId, content }) => ({
+        url: `/posts/${postId}/comment`,
+        method: "POST",
+        body: { content },
+      }),
+      invalidatesTags: ["Posts", "Comments"],
+    }),
+    getComments: builder.query<GetCommentsResponse, number>({
+      query: (postId) => `/posts/${postId}/comments`,
+      providesTags: ["Comments"],
+    }),
   }),
 });
 
@@ -85,4 +114,6 @@ export const {
   useGetPostsQuery,
   useCreatePostMutation,
   useToggleLikeMutation,
+  useAddCommentMutation,
+  useGetCommentsQuery,
 } = postsApi;

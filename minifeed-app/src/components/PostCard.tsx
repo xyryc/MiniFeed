@@ -27,7 +27,7 @@ export function PostCard({
   });
 
   return (
-    <View className="bg-white rounded-2xl p-4 mb-3 border border-gray-100 shadow-sm">
+    <View className="bg-white rounded-2xl p-4 mb-3 border border-gray-100" style={{ elevation: 1 }}>
       {/* Author & Date Header */}
       <View className="flex-row justify-between items-center mb-2">
         <View className="flex-row items-center">

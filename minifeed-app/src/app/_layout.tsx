@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Stack, useRouter, useSegments } from "expo-router";
+import { Stack, useRouter, useSegments, useRootNavigationState } from "expo-router";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { store, RootState, AppDispatch } from "@/store/index";
@@ -13,6 +13,7 @@ function ProtectedLayout() {
   const [isRestoring, setIsRestoring] = useState(true);
   const segments = useSegments();
   const router = useRouter();
+  const navigationState = useRootNavigationState();
 
   useEffect(() => {
     const restoreFromStorage = async () => {
@@ -37,7 +38,7 @@ function ProtectedLayout() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (isRestoring) return;
+    if (isRestoring || !navigationState?.key) return;
 
     const inAuthGroup = segments[0] === "(auth)";
 
@@ -46,7 +47,7 @@ function ProtectedLayout() {
     } else if (token && inAuthGroup) {
       router.replace("/(tabs)/feed");
     }
-  }, [token, isRestoring, segments[0]]);
+  }, [token, isRestoring, segments[0], navigationState?.key]);
 
   return <Stack screenOptions={{ headerShown: false }} />;
 }

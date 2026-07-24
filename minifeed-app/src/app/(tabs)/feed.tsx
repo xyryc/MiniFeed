@@ -18,11 +18,15 @@ import {
 import type { RootState } from "@/store/index";
 import { PostCard } from "@/components/PostCard";
 import { FeedHeader } from "@/components/FeedHeader";
+import { CommentsModal } from "@/components/CommentsModal";
 
 export default function FeedScreen() {
   const insets = useSafeAreaInsets();
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const [page] = useState(1);
+
+  const [activePostId, setActivePostId] = useState<number | null>(null);
+  const [commentsVisible, setCommentsVisible] = useState(false);
 
   const { data, isLoading, isFetching, isError, refetch } = useGetPostsQuery({
     page,
@@ -36,6 +40,16 @@ export default function FeedScreen() {
     } catch (error) {
       console.error("Toggle like failed:", error);
     }
+  };
+
+  const handleOpenComments = (postId: number) => {
+    setActivePostId(postId);
+    setCommentsVisible(true);
+  };
+
+  const handleCloseComments = () => {
+    setCommentsVisible(false);
+    setActivePostId(null);
   };
 
   const posts = data?.posts || [];
@@ -74,6 +88,7 @@ export default function FeedScreen() {
                 post={item}
                 currentUserId={currentUser?.id}
                 onLikePress={handleToggleLike}
+                onCommentPress={handleOpenComments}
               />
             )}
             showsVerticalScrollIndicator={false}
@@ -98,6 +113,13 @@ export default function FeedScreen() {
           />
         )}
       </View>
+
+      {/* Comments Modal */}
+      <CommentsModal
+        postId={activePostId}
+        visible={commentsVisible}
+        onClose={handleCloseComments}
+      />
     </View>
   );
 }

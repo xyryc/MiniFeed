@@ -40,7 +40,7 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
       ) : (
-        <View className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-6">
+        <View className="bg-white rounded-2xl p-5 border border-gray-100 mb-6" style={{ elevation: 2 }}>
           <Text className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
             User Info
           </Text>
@@ -89,7 +89,8 @@ export default function SettingsScreen() {
       {/* Logout Button */}
       <TouchableOpacity
         onPress={handleLogout}
-        className="flex-row items-center justify-center bg-red-600 rounded-xl py-4 border border-red-700 shadow-sm"
+        className="flex-row items-center justify-center bg-red-600 rounded-xl py-4 border border-red-700"
+        style={{ elevation: 2 }}
         activeOpacity={0.8}
       >
         <LogOut size={20} color="#ffffff" />

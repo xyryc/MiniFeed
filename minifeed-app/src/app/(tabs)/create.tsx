@@ -70,7 +70,7 @@ export default function CreatePostScreen() {
             </Text>
 
             {/* Card Container */}
-            <View className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm mb-6">
+            <View className="bg-white rounded-2xl p-4 border border-gray-100 mb-6" style={{ elevation: 1 }}>
               <TextInput
                 className="text-gray-900 text-base leading-6 min-h-[160px] align-top"
                 placeholder="What's happening?"
@@ -99,11 +99,12 @@ export default function CreatePostScreen() {
             <TouchableOpacity
               onPress={handleCreatePost}
               disabled={isLoading || !content.trim()}
-              className={`flex-row items-center justify-center rounded-xl py-4 shadow-sm ${
+              className={`flex-row items-center justify-center rounded-xl py-4 ${
                 isLoading || !content.trim()
                   ? "bg-blue-300"
                   : "bg-blue-600 active:bg-blue-700"
               }`}
+              style={{ elevation: 2 }}
               activeOpacity={0.8}
             >
               {isLoading ? (
