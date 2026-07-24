@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDispatch } from "react-redux";
 import { User, Mail, Hash, LogOut, RefreshCw } from "lucide-react-native";
 import { useGetMeQuery } from "@/store/api/authApi";
@@ -6,6 +7,7 @@ import { logout } from "@/store/authSlice";
 import type { AppDispatch } from "@/store/index";
 
 export default function SettingsScreen() {
+  const insets = useSafeAreaInsets();
   const dispatch = useDispatch<AppDispatch>();
   const { data, isLoading, isError, refetch } = useGetMeQuery();
 
@@ -14,7 +16,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <View className="flex-1 bg-gray-50 p-5">
+    <View style={{ flex: 1, backgroundColor: "#f9fafb", paddingTop: insets.top }} className="p-5">
       <Text className="text-2xl font-bold text-gray-900 mb-6">Settings</Text>
 
       {isLoading ? (

@@ -7,29 +7,12 @@ import { restoreSession } from "@/store/authSlice";
 import type { AuthUser } from "@/store/authSlice";
 import "../../global.css";
 
-function useProtectedRoute(token: string | null, isRestoring: boolean) {
-  const segments = useSegments();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (isRestoring) return;
-
-    const inAuthGroup = segments[0] === "(auth)";
-
-    if (!token && !inAuthGroup) {
-      // Redirect to login if not logged in and trying to access app
-      router.replace("/(auth)/login");
-    } else if (token && inAuthGroup) {
-      // Redirect to feed only if logged in AND currently on login/signup screen
-      router.replace("/(tabs)/feed");
-    }
-  }, [token, isRestoring, segments]);
-}
-
-function RootNavigator() {
+function ProtectedLayout() {
   const dispatch = useDispatch<AppDispatch>();
   const token = useSelector((state: RootState) => state.auth.token);
   const [isRestoring, setIsRestoring] = useState(true);
+  const segments = useSegments();
+  const router = useRouter();
 
   useEffect(() => {
     const restoreFromStorage = async () => {
@@ -45,7 +28,7 @@ function RootNavigator() {
           );
         }
       } catch {
-        // no saved session
+        // no session
       } finally {
         setIsRestoring(false);
       }
@@ -53,7 +36,17 @@ function RootNavigator() {
     restoreFromStorage();
   }, [dispatch]);
 
-  useProtectedRoute(token, isRestoring);
+  useEffect(() => {
+    if (isRestoring) return;
+
+    const inAuthGroup = segments[0] === "(auth)";
+
+    if (!token && !inAuthGroup) {
+      router.replace("/(auth)/login");
+    } else if (token && inAuthGroup) {
+      router.replace("/(tabs)/feed");
+    }
+  }, [token, isRestoring, segments[0]]);
 
   return <Stack screenOptions={{ headerShown: false }} />;
 }
@@ -61,7 +54,7 @@ function RootNavigator() {
 export default function RootLayout() {
   return (
     <Provider store={store}>
-      <RootNavigator />
+      <ProtectedLayout />
     </Provider>
   );
 }

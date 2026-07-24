@@ -7,12 +7,14 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import { MessageSquare, Heart, RefreshCw } from "lucide-react-native";
 import { useGetPostsQuery, Post } from "@/store/api/postsApi";
 import type { RootState } from "@/store/index";
 
 export default function FeedScreen() {
+  const insets = useSafeAreaInsets();
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const [page] = useState(1);
   const { data, isLoading, isFetching, isError, refetch } = useGetPostsQuery({
@@ -91,53 +93,65 @@ export default function FeedScreen() {
   };
 
   return (
-    <View className="flex-1 bg-gray-50 px-4 pt-2">
-      {isLoading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#2563eb" />
-          <Text className="text-gray-500 mt-2 font-medium">
-            Loading feed...
+    <View style={{ flex: 1, backgroundColor: "#f9fafb", paddingTop: insets.top }}>
+      {/* Feed Screen Custom Header */}
+      <View className="px-4 py-3 bg-white border-b border-gray-100 flex-row items-center justify-between">
+        <Text className="text-xl font-bold text-gray-900">MiniFeed</Text>
+        {currentUser && (
+          <Text className="text-xs font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">
+            @{currentUser.username}
           </Text>
-        </View>
-      ) : isError ? (
-        <View className="flex-1 items-center justify-center p-6">
-          <Text className="text-red-500 font-semibold mb-2 text-center">
-            Unable to fetch posts. Check your server connection.
-          </Text>
-          <TouchableOpacity
-            onPress={() => refetch()}
-            className="flex-row items-center bg-blue-600 px-4 py-2.5 rounded-xl"
-          >
-            <RefreshCw size={16} color="#ffffff" />
-            <Text className="text-white font-semibold ml-2">Try Again</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <FlatList
-          data={posts}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderPostItem}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 24 }}
-          refreshControl={
-            <RefreshControl
-              refreshing={isFetching}
-              onRefresh={refetch}
-              tintColor="#2563eb"
-            />
-          }
-          ListEmptyComponent={
-            <View className="py-16 items-center justify-center">
-              <Text className="text-gray-400 font-semibold text-base">
-                No posts yet!
-              </Text>
-              <Text className="text-gray-400 text-xs mt-1">
-                Be the first to share an update.
-              </Text>
-            </View>
-          }
-        />
-      )}
+        )}
+      </View>
+
+      <View className="flex-1 px-4 pt-3">
+        {isLoading ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color="#2563eb" />
+            <Text className="text-gray-500 mt-2 font-medium">
+              Loading feed...
+            </Text>
+          </View>
+        ) : isError ? (
+          <View className="flex-1 items-center justify-center p-6">
+            <Text className="text-red-500 font-semibold mb-2 text-center">
+              Unable to fetch posts. Check your server connection.
+            </Text>
+            <TouchableOpacity
+              onPress={() => refetch()}
+              className="flex-row items-center bg-blue-600 px-4 py-2.5 rounded-xl"
+            >
+              <RefreshCw size={16} color="#ffffff" />
+              <Text className="text-white font-semibold ml-2">Try Again</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <FlatList
+            data={posts}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderPostItem}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 24 }}
+            refreshControl={
+              <RefreshControl
+                refreshing={isFetching}
+                onRefresh={refetch}
+                tintColor="#2563eb"
+              />
+            }
+            ListEmptyComponent={
+              <View className="py-16 items-center justify-center">
+                <Text className="text-gray-400 font-semibold text-base">
+                  No posts yet!
+                </Text>
+                <Text className="text-gray-400 text-xs mt-1">
+                  Be the first to share an update.
+                </Text>
+              </View>
+            }
+          />
+        )}
+      </View>
     </View>
   );
 }

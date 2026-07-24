@@ -41,6 +41,15 @@ export interface GetPostsRequest {
   limit?: number;
 }
 
+export interface CreatePostRequest {
+  content: string;
+}
+
+export interface CreatePostResponse {
+  message: string;
+  post: Post;
+}
+
 export const postsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getPosts: builder.query<GetPostsResponse, GetPostsRequest>({
@@ -48,7 +57,15 @@ export const postsApi = baseApi.injectEndpoints({
         `/posts?page=${page}&limit=${limit}`,
       providesTags: ["Posts"],
     }),
+    createPost: builder.mutation<CreatePostResponse, CreatePostRequest>({
+      query: (body) => ({
+        url: "/posts",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Posts"],
+    }),
   }),
 });
 
-export const { useGetPostsQuery } = postsApi;
+export const { useGetPostsQuery, useCreatePostMutation } = postsApi;
