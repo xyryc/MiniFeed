@@ -14,6 +14,7 @@ class Post extends Model<PostAttributes, PostCreationAttributes> implements Post
   declare id: number;
   declare content: string;
   declare userId: number;
+  declare author?: User;
 }
 
 Post.init(
