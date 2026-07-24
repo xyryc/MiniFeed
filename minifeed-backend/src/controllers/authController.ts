@@ -23,8 +23,11 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  if (password.length < 6) {
-    res.status(400).json({ message: "Password must be at least 6 characters" });
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+  if (!passwordRegex.test(password)) {
+    res.status(400).json({ 
+      message: "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character." 
+    });
     return;
   }
 
