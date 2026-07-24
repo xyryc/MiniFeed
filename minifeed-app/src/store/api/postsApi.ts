@@ -50,6 +50,12 @@ export interface CreatePostResponse {
   post: Post;
 }
 
+export interface LikeResponse {
+  message: string;
+  liked: boolean;
+  likeCount: number;
+}
+
 export const postsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getPosts: builder.query<GetPostsResponse, GetPostsRequest>({
@@ -65,7 +71,18 @@ export const postsApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Posts"],
     }),
+    toggleLike: builder.mutation<LikeResponse, number>({
+      query: (postId) => ({
+        url: `/posts/${postId}/like`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Posts"],
+    }),
   }),
 });
 
-export const { useGetPostsQuery, useCreatePostMutation } = postsApi;
+export const {
+  useGetPostsQuery,
+  useCreatePostMutation,
+  useToggleLikeMutation,
+} = postsApi;
