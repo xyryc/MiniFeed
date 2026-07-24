@@ -1,8 +1,12 @@
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator, Switch, Alert } from "react-native";
+import { useEffect, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDispatch } from "react-redux";
-import { User, Mail, Hash, LogOut, RefreshCw } from "lucide-react-native";
-import { useGetMeQuery } from "@/store/api/authApi";
+import { User, Mail, Hash, LogOut, RefreshCw, Bell } from "lucide-react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from "expo-notifications";
+import * as Device from "expo-device";
+import { useGetMeQuery, useUpdateFcmTokenMutation } from "@/store/api/authApi";
 import { logout } from "@/store/authSlice";
 import type { AppDispatch } from "@/store/index";
 
@@ -10,6 +14,54 @@ export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const dispatch = useDispatch<AppDispatch>();
   const { data, isLoading, isError, refetch } = useGetMeQuery();
+  const [updateFcmToken] = useUpdateFcmTokenMutation();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+  useEffect(() => {
+    AsyncStorage.getItem("notificationsEnabled").then((val) => {
+      if (val === "true") setNotificationsEnabled(true);
+    });
+  }, []);
+
+  const toggleNotifications = async (value: boolean) => {
+    // Optimistic UI update
+    setNotificationsEnabled(value);
+    
+    if (value) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      
+      if (existingStatus !== "granted") {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      
+      if (finalStatus !== "granted") {
+        Alert.alert("Permission required", "Please enable notifications in your phone settings.");
+        setNotificationsEnabled(false);
+        return;
+      }
+      
+      try {
+        const pushTokenData = await Notifications.getDevicePushTokenAsync();
+        await updateFcmToken({ token: pushTokenData.data }).unwrap();
+        await AsyncStorage.setItem("notificationsEnabled", "true");
+      } catch (e) {
+        console.error("Failed to enable notifications", e);
+        Alert.alert("Error", "Failed to enable notifications on the server.");
+        setNotificationsEnabled(false);
+      }
+    } else {
+      try {
+        await updateFcmToken({ token: null }).unwrap();
+        await AsyncStorage.setItem("notificationsEnabled", "false");
+      } catch (e) {
+        console.error("Failed to disable notifications", e);
+        Alert.alert("Error", "Failed to disable notifications on the server.");
+        setNotificationsEnabled(true);
+      }
+    }
+  };
 
   const handleLogout = () => {
     dispatch(logout());
@@ -85,6 +137,35 @@ export default function SettingsScreen() {
           </View>
         </View>
       )}
+
+      {/* App Preferences */}
+      <View className="bg-white rounded-2xl p-5 border border-gray-100 mb-6" style={{ elevation: 2 }}>
+        <Text className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
+          Preferences
+        </Text>
+        
+        <View className="flex-row items-center justify-between py-2">
+          <View className="flex-row items-center">
+            <View className="w-9 h-9 rounded-full bg-yellow-50 items-center justify-center mr-3">
+              <Bell size={18} color="#eab308" />
+            </View>
+            <View>
+              <Text className="text-base font-semibold text-gray-900">
+                Push Notifications
+              </Text>
+              <Text className="text-xs text-gray-400">
+                Likes & comments on your posts
+              </Text>
+            </View>
+          </View>
+          <Switch
+            value={notificationsEnabled}
+            onValueChange={toggleNotifications}
+            trackColor={{ false: "#d1d5db", true: "#bfdbfe" }}
+            thumbColor={notificationsEnabled ? "#2563eb" : "#9ca3af"}
+          />
+        </View>
+      </View>
 
       {/* Logout Button */}
       <TouchableOpacity

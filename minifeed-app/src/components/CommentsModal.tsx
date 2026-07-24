@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Modal,
   View,
@@ -34,6 +34,17 @@ export function CommentsModal({ postId, visible, onClose }: CommentsModalProps) 
   const { data, isLoading, isFetching, isError } = useGetCommentsQuery(postId!, {
     skip: !postId || !visible,
   });
+
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener("keyboardDidShow", () => setKeyboardVisible(true));
+    const hideSub = Keyboard.addListener("keyboardDidHide", () => setKeyboardVisible(false));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   const [addComment, { isLoading: isSubmitting }] = useAddCommentMutation();
 
@@ -99,7 +110,7 @@ export function CommentsModal({ postId, visible, onClose }: CommentsModalProps) 
       onRequestClose={handleClose}
     >
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior="padding"
         style={{ flex: 1 }}
       >
         <View className="flex-1 justify-end bg-black/50">
@@ -164,8 +175,9 @@ export function CommentsModal({ postId, visible, onClose }: CommentsModalProps) 
             {/* Comment Input Bar */}
             <View
               style={{
-                paddingBottom:
-                  Platform.OS === "ios" ? insets.bottom + 8 : 12,
+                paddingBottom: isKeyboardVisible 
+                  ? 12 
+                  : Platform.OS === "ios" ? insets.bottom + 8 : insets.bottom + 12,
               }}
               className="p-3 border-t border-gray-100 bg-white flex-row items-center"
             >

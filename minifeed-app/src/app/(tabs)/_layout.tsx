@@ -1,7 +1,11 @@
 import { Tabs } from "expo-router";
 import { Home, PlusSquare, Settings } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Platform } from "react-native";
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
+  
   return (
     <Tabs
       screenOptions={{
@@ -9,9 +13,9 @@ export default function TabsLayout() {
         tabBarActiveTintColor: "#2563eb",
         tabBarInactiveTintColor: "#6b7280",
         tabBarStyle: {
-          paddingBottom: 6,
+          paddingBottom: Platform.OS === 'ios' ? insets.bottom : insets.bottom + 6,
           paddingTop: 6,
-          height: 60,
+          height: 60 + insets.bottom,
         },
       }}
     >

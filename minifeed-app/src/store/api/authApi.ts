@@ -23,6 +23,10 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface FcmTokenRequest {
+  token: string | null;
+}
+
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     signup: builder.mutation<AuthResponse, SignupRequest>({
@@ -42,7 +46,14 @@ export const authApi = baseApi.injectEndpoints({
     getMe: builder.query<{ user: AuthUser }, void>({
       query: () => "/auth/me",
     }),
+    updateFcmToken: builder.mutation<{ message: string }, FcmTokenRequest>({
+      query: (body) => ({
+        url: "/auth/fcm-token",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
-export const { useSignupMutation, useLoginMutation, useGetMeQuery } = authApi;
+export const { useSignupMutation, useLoginMutation, useGetMeQuery, useUpdateFcmTokenMutation } = authApi;
