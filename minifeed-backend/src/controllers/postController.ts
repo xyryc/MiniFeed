@@ -2,6 +2,8 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/authMiddleware';
 import Post from '../models/Post';
 import User from '../models/User';
+import Like from '../models/Like';
+import Comment from '../models/Comment';
 
 export const createPost = async (req: AuthRequest, res: Response): Promise<void> => {
   const { content } = req.body as { content: string };
@@ -42,20 +44,26 @@ export const getPosts = async (req: AuthRequest, res: Response): Promise<void> =
   const offset = (page - 1) * limit;
 
   try {
-    const { count, rows } = await Post.findAndCountAll({
-      include: [{ model: User, as: 'author', attributes: ['id', 'username'] }],
+    const total = await Post.count();
+
+    const posts = await Post.findAll({
+      include: [
+        { model: User, as: 'author', attributes: ['id', 'username'] },
+        { model: Like, as: 'likes', attributes: ['id', 'userId'] },
+        { model: Comment, as: 'comments', attributes: ['id'] },
+      ],
       order: [['createdAt', 'DESC']],
       limit,
       offset,
     });
 
     res.status(200).json({
-      posts: rows,
+      posts,
       pagination: {
-        total: count,
+        total,
         page,
         limit,
-        totalPages: Math.ceil(count / limit),
+        totalPages: Math.ceil(total / limit),
       },
     });
   } catch (error) {
@@ -65,11 +73,24 @@ export const getPosts = async (req: AuthRequest, res: Response): Promise<void> =
 };
 
 export const getPostById = async (req: AuthRequest, res: Response): Promise<void> => {
-  const { id } = req.params;
+  const id = parseInt(req.params['id'] as string);
+
+  if (isNaN(id)) {
+    res.status(400).json({ message: 'Invalid post ID' });
+    return;
+  }
 
   try {
     const post = await Post.findByPk(id, {
-      include: [{ model: User, as: 'author', attributes: ['id', 'username'] }],
+      include: [
+        { model: User, as: 'author', attributes: ['id', 'username'] },
+        { model: Like, as: 'likes', attributes: ['id', 'userId'] },
+        {
+          model: Comment,
+          as: 'comments',
+          include: [{ model: User, as: 'author', attributes: ['id', 'username'] }],
+        },
+      ],
     });
 
     if (!post) {

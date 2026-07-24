@@ -4,12 +4,12 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User';
 
 const generateToken = (id: number, email: string): string => {
-  return jwt.sign(
-    { id, email },
-    process.env.JWT_SECRET as string,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
-  );
+  const options: jwt.SignOptions = {
+    expiresIn: (process.env['JWT_EXPIRES_IN'] || '7d') as jwt.SignOptions['expiresIn'],
+  };
+  return jwt.sign({ id, email }, process.env['JWT_SECRET'] as string, options);
 };
+
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
   const { username, email, password } = req.body as {
