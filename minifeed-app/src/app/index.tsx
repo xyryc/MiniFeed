@@ -1,9 +1,5 @@
-import { Text, View, StyleSheet } from "react-native";
+import { Redirect } from "expo-router";
 
 export default function Index() {
-  return (
-    <View>
-      <Text className="">Edit src/app/index.tsx to edit this screen.</Text>
-    </View>
-  );
+  return <Redirect href="/(auth)/login" />;
 }
