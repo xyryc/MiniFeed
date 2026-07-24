@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import sequelize from './config/db';
 import authRoutes from './routes/authRoutes';
+import postRoutes from './routes/postRoutes';
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
+app.use('/api/posts', postRoutes);
 
 app.get('/', (_req, res) => {
   res.json({ message: 'MiniFeed API running' });
